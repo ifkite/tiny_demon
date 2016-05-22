@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    </head>
+    <body>
+        <ul>
+        {% for file in files %}
+        <li><a href="{{reverse_url('download',file)}}" title="" target="">{{file}}</a></li>
+        {%end%}
+        </ul>
+    </body>
+</html>
