@@ -1,43 +1,66 @@
 <!DOCTYPE html>
+<html>
+  <head>
+  </head>
 
-<input type="file" id="files" name="files[]" multiple />
-<output id="list"></output>
+  <body>
+      <div id="upload">
+          <input type="file" id="files" name="files[]" multiple />
+      </div>
+      <output id="list"></output>
+  </body>
+  <footer>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+    <script>
+      function handleFileSelect(evt) {
+        var files = evt.target.files; // FileList object
 
-<script>
-  function handleFileSelect(evt) {
-    var files = evt.target.files; // FileList object
+        // files is a FileList of File objects. List some properties.
+        var output = [];
 
-    // files is a FileList of File objects. List some properties.
-    var output = [];
+        function uploadFile(file){
+            var reader = new FileReader();
+            var xhr = new XMLHttpRequest();
+            this.xhr = xhr;
+            var self = this;
+            xhr.open("POST", {{reverse_url('upload')}});
+            xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
+            xhr.responseType = 'json'
+            xhr.setRequestHeader('filename', file.name);
 
-    function uploadFile(file){
-        console.log('upload file');
-        var reader = new FileReader();
-        var xhr = new XMLHttpRequest();
-        this.xhr = xhr;
-        var self = this;
-        xhr.open("POST", "http://127.0.0.1:8080/upload/");
-        xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
-        xhr.responseType = 'json'
-        xhr.setRequestHeader('filename', file.name);
+            // call when readAsBinaryString is available
+            reader.onload = function(evt) {
+                xhr.send(file)
+            };
 
-        reader.onload = function(evt) {
-            xhr.send(file)
-        };
+            // call when server return data
+            xhr.onload = function() {
+                if (xhr.response.success){
+                    $('.filename').css('color','green');
+                }
+                else{
+                    var filename = $('.filename').html();
+                    $('.filename').html(filename + ' upload failed.');
+                }
+            }
 
-        reader.readAsBinaryString(file);
-    }
+            // read all content into memory at one time
+            reader.readAsBinaryString(file);
+        }
 
-    // upload sigle file
-    file = files[0];
-    output.push('<li><strong>', escape(file.name), '</strong> (', file.type || 'n/a', ') - ',
-                  file.size, ' bytes, last modified: ',
-                  file.lastModifiedDate ? file.lastModifiedDate.toLocaleDateString() : 'n/a',
-                  '</li>');
-    // upload file
-    uploadFile(file);
-    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
-  }
+        // upload sigle file
+        file = files[0];
+        output.push('<li><strong class="filename">', escape(file.name), '</strong> (', file.type || 'n/a', ') - ',
+                      file.size, ' bytes, last modified: ',
+                      file.lastModifiedDate ? file.lastModifiedDate.toLocaleDateString() : 'n/a',
+                      '</li>');
 
-  document.getElementById('files').addEventListener('change', handleFileSelect, false);
-</script>
+        // upload file
+        $('#list').html('<ul>' + output.join('') + '</ul>');
+        uploadFile(file);
+      }
+
+      $('#files')[0].addEventListener('change', handleFileSelect, false);
+    </script>
+  </footer>
+</html>
