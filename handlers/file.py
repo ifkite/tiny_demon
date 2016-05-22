@@ -22,12 +22,8 @@ class UploadHandler(tornado.web.RequestHandler):
 
     def post(self):
         # # file handler
-
-        # if filepath is None:
-            # raise tornado.web.HTTPError(403)
-        # filepath = re.sub(r"/+", "/", filepath).strip("/")
-
-        filename = self.request.files["file"][0].filename
+        filename = self.request.headers.get('Filename')
+        filebody = self.request.body
         # no file uploaded
         if not filename:
             # upload file in root of mfs is not allowed
@@ -38,20 +34,12 @@ class UploadHandler(tornado.web.RequestHandler):
             # os.makedirs(save_path)
 
         save_file = os.path.join(options.basedir, filename)
-        print save_file
 
         # TODO 1.write in chuncks
         #      2.async
         with open(save_file, "w") as fp:
-            fp.write(filename)
-        # purge_url = "http://{0}/{1}/{2}".format(options.varnish_host, filepath, filename)
-        # req = Request("PURGE", purge_url)
-        # s = Session()
-        # try:
-            # s.send(req.prepare())
-        # except:
-            # pass
-        self.redirect(self.reverse_url('download',""))
+            fp.write(filebody)
+        self.write({'success': True})
 
 class DownloadHandler(tornado.web.RequestHandler):
     def get(self, filename=None):
@@ -68,7 +56,7 @@ class DownloadHandler(tornado.web.RequestHandler):
                 with open(_filepath, "rb") as f:
                     try:
                         while True:
-                            _buffer = f.read(4096)
+                            _buffer = f.read(options.buf_size)
                             if _buffer:
                                 self.write(_buffer)
                             else:

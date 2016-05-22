@@ -1,11 +1,43 @@
 <!DOCTYPE html>
-<html>
-    <head>
-    </head>
-    <body>
-        <form name="file-uplaod" method="post" action="#" enctype="multipart/form-data">
-        File:<input type="file" name="file"><br>
-            <input type="submit" value="Upload">
-        </form>
-    </body>
-</html>
+
+<input type="file" id="files" name="files[]" multiple />
+<output id="list"></output>
+
+<script>
+  function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+
+    // files is a FileList of File objects. List some properties.
+    var output = [];
+
+    function uploadFile(file){
+        console.log('upload file');
+        var reader = new FileReader();
+        var xhr = new XMLHttpRequest();
+        this.xhr = xhr;
+        var self = this;
+        xhr.open("POST", "http://127.0.0.1:8080/upload/");
+        xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
+        xhr.responseType = 'json'
+        xhr.setRequestHeader('filename', file.name);
+
+        reader.onload = function(evt) {
+            xhr.send(file)
+        };
+
+        reader.readAsBinaryString(file);
+    }
+
+    // upload sigle file
+    file = files[0];
+    output.push('<li><strong>', escape(file.name), '</strong> (', file.type || 'n/a', ') - ',
+                  file.size, ' bytes, last modified: ',
+                  file.lastModifiedDate ? file.lastModifiedDate.toLocaleDateString() : 'n/a',
+                  '</li>');
+    // upload file
+    uploadFile(file);
+    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+  }
+
+  document.getElementById('files').addEventListener('change', handleFileSelect, false);
+</script>

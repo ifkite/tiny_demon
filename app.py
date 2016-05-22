@@ -15,8 +15,8 @@ define("port", default=8080, help="run on the given port", type=int)
 define("host", default="0.0.0.0", help="listen the given host", type=str)
 define("basedir", default="/tmp", help="root path of upload files", type=str)
 define("baseurl", default="localhost", help="base host url", type=str)
-# define("varnish_host", default="localhost", help="varnish host", type=str)
 define("processes", default=8, help="multi fork processes number", type=int)
+define("buf_size", default=4096, help="buffer size of readiing file", type=int)
 
 
 class Application(tornado.web.Application):
