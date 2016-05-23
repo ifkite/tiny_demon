@@ -21,7 +21,7 @@ class UploadHandler(tornado.web.RequestHandler):
         self.render("upload.html")
 
     def post(self):
-        # # file handler
+        # file handler
         filename = self.request.headers.get('Filename')
         filebody = self.request.body
         # no file uploaded
