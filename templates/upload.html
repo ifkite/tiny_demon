@@ -1,3 +1,5 @@
+{% from tornado.options import options %}
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -19,33 +21,66 @@
         var output = [];
 
         function uploadFile(file){
-            var reader = new FileReader();
-            var xhr = new XMLHttpRequest();
-            this.xhr = xhr;
             var self = this;
-            xhr.open("POST", {{reverse_url('upload')}});
-            xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
-            xhr.responseType = 'json'
-            xhr.setRequestHeader('filename', file.name);
 
-            // call when readAsBinaryString is available
-            reader.onload = function(evt) {
-                xhr.send(file)
-            };
+            function setupSender(blob){
+                var xhr = new XMLHttpRequest();
+                this.xhr = xhr;
+                xhr.open("POST", {{reverse_url('upload')}});
+                xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
+                xhr.responseType = 'json'
+                xhr.setRequestHeader('Filename', escape(file.name));
+                // call when server return data
+                xhr.onload = function() {
+                    if (xhr.response.success){
+                        $('.filename').css('color','green');
+                    }
+                    else{
+                        var filename = $('.filename').html();
+                        $('.filename').html(filename + ' upload failed.');
+                    }
+                }
+                xhr.send(blob);
+            }
 
-            // call when server return data
-            xhr.onload = function() {
-                if (xhr.response.success){
-                    $('.filename').css('color','green');
-                }
-                else{
-                    var filename = $('.filename').html();
-                    $('.filename').html(filename + ' upload failed.');
-                }
+            function setupReader(blob){
+              var reader = new FileReader();
+              // call when readAsBinaryString is available
+              reader.onloadend = function(evt) {
+                    if(evt.target.readyState == FileReader.DONE){
+                        setupSender(evt.target.result);
+                    }
+                };
+              reader.readAsBinaryString(blob);
             }
 
             // read all content into memory at one time
-            reader.readAsBinaryString(file);
+            var chunk_size = {{options.chunk_size}};
+            var full_chunk_loop_time = parseInt(file.size / chunk_size);
+            var left_chunk_size = file.size % chunk_size;
+            for(i=0; i<full_chunk_loop_time; i++){
+              if (file.webkitSlice) {
+                  // file sliced in [start, end) format
+                  var blob = file.webkitSlice(i*chunk_size, (i+1)*chunk_size);
+              } else if (file.mozSlice) {
+                  var blob = file.mozSlice(i*chunk_size, (i+i)*chunk_size);
+              } else if(file.slice){
+                  var blob = file.slice(i*chunk_size, (i+1)*chunk_size);
+              }
+              setupReader(blob);
+            }
+
+            // handle chunk that left
+            if(left_chunk_size){
+              if (file.webkitSlice) {
+                  var blob = file.webkitSlice(full_chunk_loop_time*chunk_size, file.size);
+              } else if (file.mozSlice) {
+                  var blob = file.mozSlice(full_chunk_loop_time*chunk_size, file.size);
+              } else if(file.slice){
+                  var blob = file.slice(full_chunk_loop_time*chunk_size, file.size);
+              }
+              setupReader(blob);
+            }
         }
 
         // upload sigle file

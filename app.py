@@ -17,6 +17,7 @@ define("basedir", default="/tmp", help="root path of upload files", type=str)
 define("baseurl", default="localhost", help="base host url", type=str)
 define("processes", default=8, help="multi fork processes number", type=int)
 define("buf_size", default=4096, help="buffer size of readiing file", type=int)
+define("chunk_size", default=4096, help="buffer size of readiing file", type=int)
 
 
 class Application(tornado.web.Application):
