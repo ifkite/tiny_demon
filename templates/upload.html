@@ -46,7 +46,10 @@
                         $('.filename').html(filename + ' upload failed.');
                     }
                 }
-                xhr.send(blob);
+                formdata = new FormData();
+                sliced_file = new File([blob], escape(file.name))
+                formdata.append("{{options.fname}}", sliced_file);
+                xhr.send(formdata);
             }
 
             function setupReader(blob, file_id, serial){

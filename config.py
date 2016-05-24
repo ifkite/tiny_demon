@@ -8,6 +8,7 @@ define("baseurl", default="localhost", help="base host url", type=str)
 define("processes", default=8, help="multi fork processes number", type=int)
 define("buf_size", default=4096, help="buffer size of readiing file", type=int)
 define("chunk_size", default=4096*1024, help="buffer size of readiing file", type=int)
+define("fname", default="fileslice", help="name of file in the form", type=int)
 
 # redis connection
 REDIS_HOST = '127.0.0.1'
