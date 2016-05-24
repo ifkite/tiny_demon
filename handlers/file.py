@@ -12,6 +12,8 @@ from tornado.escape import json_encode
 from os import listdir
 from os.path import isfile, join
 
+from config import redis_conn
+
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
@@ -21,19 +23,32 @@ class UploadHandler(tornado.web.RequestHandler):
         self.render("upload.html")
 
     def post(self):
-        # file handler
         filename = self.request.headers.get('Filename')
+        file_id = self.request.headers.get('Fileid')
+        serial = self.request.headers.get('Serial')
+
         filebody = self.request.body
         # no file uploaded
-        if not filename:
+        if not (filename and file_id and serial):
             # upload file in root of mfs is not allowed
             raise tornado.web.HTTPError(403)
 
-        # save_path = os.path.join(options.basedir, filepath)
-        # if not os.path.exists(save_path):
-            # os.makedirs(save_path)
+        if not redis_conn.sismember("fileids", file_id):
+            redis_conn.sadd("fileids", file_id)
 
-        save_file = os.path.join(options.basedir, filename)
+        if not redis_conn.get("{0}:filename".format(file_id)):
+            redis_conn.set("{0}:filename".format(file_id), filename)
+
+        if not redis_conn.sismember("{0}:child".format(file_id), serial):
+            redis_conn.sadd("{0}:child".format(file_id), serial)
+
+        file_dir = os.path.join(options.basedir, filename)
+        if not os.path.isdir(file_dir):
+            os.makedirs(file_dir)
+
+        sliced_filename = "{0}:{1}".format(file_id, serial)
+
+        save_file = os.path.join(file_dir, sliced_filename)
 
         # TODO 1.write in chuncks
         #      2.async
