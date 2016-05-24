@@ -39,8 +39,8 @@ class UploadHandler(tornado.web.RequestHandler):
         if not redis_conn.get("{0}:filename".format(file_id)):
             redis_conn.set("{0}:filename".format(file_id), filename)
 
-        if not redis_conn.sismember("{0}:child".format(file_id), serial):
-            redis_conn.sadd("{0}:child".format(file_id), serial)
+        if not redis_conn.sismember("{0}:children".format(file_id), serial):
+            redis_conn.sadd("{0}:children".format(file_id), serial)
 
         file_dir = os.path.join(options.basedir, filename)
         if not os.path.isdir(file_dir):
@@ -50,37 +50,45 @@ class UploadHandler(tornado.web.RequestHandler):
 
         save_file = os.path.join(file_dir, sliced_filename)
 
-        # TODO 1.write in chuncks
+        # TODO 1.write in chuncks:DONE
         #      2.async
-        with open(save_file, "w") as fp:
-            fp.write(filebody)
+        # in fact, when `redis_conn.sismember("{0}:child".format(file_id), serial)` is True
+        # we do not need to write file
+        with open(save_file, "wb") as file_write:
+            file_write.write(filebody)
         self.write({'success': True})
 
 class DownloadHandler(tornado.web.RequestHandler):
-    def get(self, filename=None):
-        files = [f for f in listdir(options.basedir) if isfile(join(options.basedir, f))]
-        if not filename:
+    def get(self, fileid=None):
+        fileids = redis_conn.smembers("fileids")
+        files = {fileid: redis_conn.get("{0}:filename".format(fileid)) for fileid in fileids}
+        if not fileid:
             self.render('download.html', files=files)
         else:
             # download file
-            if filename in files:
+            if fileid in files:
+                filename = files.get(fileid)
                 self.set_header('Content-Type', 'application/force-download')
                 self.set_header('Content-Disposition', 'attachment; filename={0}'.format(filename))
 
-                _filepath = os.path.join(options.basedir, filename)
-                with open(_filepath, "rb") as f:
-                    try:
+                # NEED SOME MODIFICATION
+                # TODO: we should `remember` that we sorted that set
+                # even more, we can avoid sort operation if we known the chunk length
+                # who are us? we are the servers ;)
+                sliced_files_serial = redis_conn.sort("{0}:children".format(fileid))
+                sliced_files_name = ["{0}:{1}".format(fileid, serial) for serial in sliced_files_serial]
+                file_dir = os.path.join(options.basedir, filename)
+
+                for sliced_file_child in sliced_files_name:
+                    sliced_child_path = os.path.join(file_dir, sliced_file_child)
+                    with open(sliced_child_path, "rb") as file_read:
                         while True:
-                            _buffer = f.read(options.buf_size)
-                            if _buffer:
-                                self.write(_buffer)
+                            buffer = file_read.read(options.buf_size)
+                            if buffer:
+                                self.write(buffer)
                             else:
-                                f.close()
-                                self.finish()
-                                return
-                    except:
-                        # TODO error handling
-                        raise tornado.web.HttpError(404)
+                                break
+                self.finish()
             else:
                 # TODO error handling
                 raise tornado.web.HttpError(404)

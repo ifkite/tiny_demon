@@ -4,8 +4,8 @@
     </head>
     <body>
         <ul>
-        {% for file in files %}
-        <li><a href="{{reverse_url('download',file)}}" title="" target="">{{file}}</a></li>
+        {% for fileid, filename in files.iteritems() %}
+        <li><a href="{{reverse_url('download',fileid)}}" title="" target="">{{filename}}</a></li>
         {%end%}
         </ul>
     </body>
