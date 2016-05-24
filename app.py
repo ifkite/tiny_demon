@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
-import logging
 import tornado.httpserver
 import tornado.ioloop
 import tornado.web
-from tornado.options import define, options
+from tornado.options import options
 from tornado.web import URLSpec
 
 from handlers.file import UploadHandler
 from handlers.file import DownloadHandler
 
-import config
 
 class Application(tornado.web.Application):
     def __init__(self):

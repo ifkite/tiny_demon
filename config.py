@@ -1,4 +1,4 @@
-from tornado.options import define, options
+from tornado.options import define
 import redis
 
 define("port", default=8080, help="run on the given port", type=int)

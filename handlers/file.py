@@ -1,16 +1,8 @@
 #! encoding=utf-8
 import os
-import shutil
 import sys
-import logging
-import re
-from hashlib import md5
-from requests import Request, Session
 import tornado.web
 from tornado.options import options
-from tornado.escape import json_encode
-from os import listdir
-from os.path import isfile, join
 
 import utils
 from config import redis_conn
