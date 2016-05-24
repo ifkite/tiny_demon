@@ -12,6 +12,7 @@ from tornado.escape import json_encode
 from os import listdir
 from os.path import isfile, join
 
+import utils
 from config import redis_conn
 
 reload(sys)
@@ -33,14 +34,14 @@ class UploadHandler(tornado.web.RequestHandler):
             # upload file in root of mfs is not allowed
             raise tornado.web.HTTPError(403)
 
-        if not redis_conn.sismember("fileids", file_id):
-            redis_conn.sadd("fileids", file_id)
+        if not utils.has_fileid(file_id):
+            utils.add_fileid(file_id)
 
-        if not redis_conn.get("{0}:filename".format(file_id)):
-            redis_conn.set("{0}:filename".format(file_id), filename)
+        if not utils.get_filename_by_id(file_id):
+            utils.set_filename_with_id(file_id, filename)
 
-        if not redis_conn.sismember("{0}:children".format(file_id), serial):
-            redis_conn.sadd("{0}:children".format(file_id), serial)
+        if not utils.is_children(file_id, serial):
+            utils.add_children(file_id, serial)
 
         file_dir = os.path.join(options.basedir, filename)
         if not os.path.isdir(file_dir):
@@ -60,8 +61,8 @@ class UploadHandler(tornado.web.RequestHandler):
 
 class DownloadHandler(tornado.web.RequestHandler):
     def get(self, fileid=None):
-        fileids = redis_conn.smembers("fileids")
-        files = {fileid: redis_conn.get("{0}:filename".format(fileid)) for fileid in fileids}
+        fileids = utils.get_fileids()
+        files = {fileid: utils.get_filename_by_id(fileid) for fileid in fileids}
         if not fileid:
             self.render('download.html', files=files)
         else:
