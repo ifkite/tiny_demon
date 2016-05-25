@@ -47,7 +47,7 @@
                     }
                 }
                 formdata = new FormData();
-                sliced_file = new File([blob], escape(file.name))
+                sliced_file = new File([blob], escape(file.name), {type: file.type, lastModified: new Date()})
                 formdata.append("{{options.fname}}", sliced_file);
                 xhr.send(formdata);
             }
@@ -57,7 +57,7 @@
               // call when readAsBinaryString is available
               reader.onloadend = function(evt) {
                     if(evt.target.readyState == FileReader.DONE){
-                        setupSender(evt.target.result, file_id, serial);
+                        setupSender(blob, file_id, serial);
                     }
                 };
               reader.readAsBinaryString(blob);
