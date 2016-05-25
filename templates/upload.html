@@ -51,17 +51,6 @@
                 xhr.send(formdata);
             }
 
-            function setupReader(blob, file_id, serial){
-              var reader = new FileReader();
-              // call when readAsBinaryString is available
-              reader.onloadend = function(evt) {
-                    if(evt.target.readyState == FileReader.DONE){
-                        setupSender(blob, file_id, serial);
-                    }
-                };
-              reader.readAsBinaryString(blob);
-            }
-
             function getBlobSlice(file, start, end){
               if (file.webkitSlice) {
                   // file sliced in [start, end) format
@@ -90,13 +79,13 @@
 
             for(serial=0; serial<full_chunk_loop_time; serial++){
               var blob = getBlobSlice(file, serial*chunk_size, (serial+1)*chunk_size);
-              setupReader(blob, file_id, serial);
+              setupSender(blob, file_id, serial);
             }
 
             // handle chunk that left
             if(left_chunk_size){
               var blob = getBlobSlice(file, full_chunk_loop_time*chunk_size, file.size);
-              setupReader(blob, file_id, full_chunk_loop_time);
+              setupSender(blob, file_id, full_chunk_loop_time);
             }
         }
 
