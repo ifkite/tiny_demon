@@ -20,3 +20,6 @@ def add_children(file_id, serial):
 
 def get_fileids():
     return redis_conn.smembers("fileids")
+
+def sort_children_by_id(file_id):
+    return redis_conn.sort("{0}:children".format(file_id))

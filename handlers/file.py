@@ -74,10 +74,11 @@ class DownloadHandler(tornado.web.RequestHandler):
                 # TODO: we should `remember` that we sorted that set
                 # even more, we can avoid sort operation if we known the chunk length
                 # who are us? we are the servers ;)
-                sliced_files_serial = redis_conn.sort("{0}:children".format(fileid))
+                sliced_files_serial = utils.sort_children_by_id(fileid)
                 sliced_files_name = ["{0}:{1}".format(fileid, serial) for serial in sliced_files_serial]
                 file_dir = os.path.join(options.basedir, filename)
 
+                # merge files
                 for sliced_file_child in sliced_files_name:
                     sliced_child_path = os.path.join(file_dir, sliced_file_child)
                     with open(sliced_child_path, "rb") as file_read:
