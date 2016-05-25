@@ -25,8 +25,8 @@ class UploadHandler(tornado.web.RequestHandler):
             raise tornado.web.HTTPError(403)
 
         # TODO post in form
-        file_id = self.get_body_argument('Fileid')
-        serial = self.get_body_argument('Serial')
+        file_id = self.get_body_argument(options.fileid)
+        serial = self.get_body_argument(options.serial)
 
         if not (file_id and serial):
             raise tornado.web.HTTPError(403)

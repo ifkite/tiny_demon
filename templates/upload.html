@@ -46,8 +46,8 @@
                 formdata = new FormData();
                 sliced_file = new File([blob], escape(file.name), {type: file.type, lastModified: new Date()})
                 formdata.append("{{options.fname}}", sliced_file);
-                formdata.append("Fileid", file_id);
-                formdata.append("Serial", serial);
+                formdata.append("{{options.fileid}}", file_id);
+                formdata.append("{{options.serial}}", serial);
                 xhr.send(formdata);
             }
 
