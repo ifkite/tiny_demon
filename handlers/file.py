@@ -24,6 +24,8 @@ class UploadHandler(tornado.web.RequestHandler):
         # we do not need to write file
         with open(save_file, "wb") as file_write:
             file_write.write(filebody)
+        # after write operation, set the write state to 1, so if write failed, the get_child_write_success will get nothing
+        utils.set_child_write_success(file_id, serial)
 
     def get(self):
         self.render("upload.html")
@@ -50,10 +52,15 @@ class UploadHandler(tornado.web.RequestHandler):
         if not utils.get_filename_by_id(file_id):
             utils.set_filename_with_id(file_id, filename)
 
-        if not utils.is_children(file_id, serial):
+        if not utils.is_children(file_id, serial) and not utils.get_child_write_success(file_id, serial):
             utils.add_children(file_id, serial)
 
-        self._write_handler(file_id, filename, serial, filebody)
+            try:
+                self._write_handler(file_id, filename, serial, filebody)
+            # mainly used for catching IOError
+            except (IOError, Exception):
+                self.write({'success': False})
+                return
 
         self.write({'success': True})
 

@@ -23,3 +23,9 @@ def get_fileids():
 
 def sort_children_by_id(file_id):
     return redis_conn.sort("{0}:children".format(file_id))
+
+def set_child_write_success(file_id, serial):
+    redis_conn.set("{0}:{1}:write".format(file_id, serial), 1)
+
+def get_child_write_success(file_id, serial):
+    return redis_conn.get("{0}:{1}:write".format(file_id, serial))
