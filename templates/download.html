@@ -5,8 +5,16 @@
     <body>
         <ul>
         {% for fileid, filename in files.iteritems() %}
-        <li><a href="{{reverse_url('download',fileid)}}" title="" target="">{{filename}}</a></li>
+        <li><a href="{{reverse_url('download',fileid)}}" title="" target="" id="{{fileid}}">{{filename}}</a></li>
         {%end%}
         </ul>
     </body>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+    <script>
+        $(document).ready(function(){
+        {% for fileid, _ in files.iteritems() %}
+            $('#{{fileid}}').text(unescape($('#{{fileid}}').text()));
+        {% end %}
+        });
+    </script>
 </html>
