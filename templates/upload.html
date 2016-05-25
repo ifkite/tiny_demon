@@ -33,9 +33,6 @@
                 xhr.open("POST", {{reverse_url('upload')}});
                 xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
                 xhr.responseType = 'json'
-                xhr.setRequestHeader('Filename', escape(file.name));
-                xhr.setRequestHeader('Fileid', file_id);
-                xhr.setRequestHeader('Serial', serial);
                 // call when server return data
                 xhr.onload = function() {
                     if (xhr.response.success){
@@ -49,6 +46,8 @@
                 formdata = new FormData();
                 sliced_file = new File([blob], escape(file.name), {type: file.type, lastModified: new Date()})
                 formdata.append("{{options.fname}}", sliced_file);
+                formdata.append("Fileid", file_id);
+                formdata.append("Serial", serial);
                 xhr.send(formdata);
             }
 

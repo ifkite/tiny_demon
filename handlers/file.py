@@ -19,16 +19,16 @@ class UploadHandler(tornado.web.RequestHandler):
         if self.request.files:
             filebody = self.request.files[options.fname][0].body
             filename = self.request.files[options.fname][0].filename
+            if (not filebody) or (not filename):
+                raise tornado.web.HTTPError(403)
         else:
             raise tornado.web.HTTPError(403)
 
         # TODO post in form
-        file_id = self.request.headers.get('Fileid')
-        serial = self.request.headers.get('Serial')
+        file_id = self.get_body_argument('Fileid')
+        serial = self.get_body_argument('Serial')
 
-        # no file uploaded
         if not (file_id and serial):
-            # upload file in root of mfs is not allowed
             raise tornado.web.HTTPError(403)
 
         if not utils.has_fileid(file_id):
