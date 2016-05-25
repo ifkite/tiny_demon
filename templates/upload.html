@@ -102,7 +102,7 @@
 
         // upload sigle file
         file = files[0];
-        output.push('<li><strong class="filename">', escape(file.name), '</strong> (', file.type || 'n/a', ') - ',
+        output.push('<li><strong class="filename">', file.name, '</strong> (', file.type || 'n/a', ') - ',
                       file.size, ' bytes, last modified: ',
                       file.lastModifiedDate ? file.lastModifiedDate.toLocaleDateString() : 'n/a',
                       '</li>');

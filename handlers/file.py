@@ -12,6 +12,19 @@ sys.setdefaultencoding("utf-8")
 
 class UploadHandler(tornado.web.RequestHandler):
 
+    def _write_handler(self, file_id, filename, serial, filebody):
+        file_dir = os.path.join(options.basedir, filename)
+        if not os.path.isdir(file_dir):
+            os.makedirs(file_dir)
+        sliced_filename = "{0}:{1}".format(file_id, serial)
+        save_file = os.path.join(file_dir, sliced_filename)
+        # TODO 1.write in chuncks:DONE
+        #      2.async
+        # in fact, when `redis_conn.sismember("{0}:child".format(file_id), serial)` is True
+        # we do not need to write file
+        with open(save_file, "wb") as file_write:
+            file_write.write(filebody)
+
     def get(self):
         self.render("upload.html")
 
@@ -40,20 +53,8 @@ class UploadHandler(tornado.web.RequestHandler):
         if not utils.is_children(file_id, serial):
             utils.add_children(file_id, serial)
 
-        file_dir = os.path.join(options.basedir, filename)
-        if not os.path.isdir(file_dir):
-            os.makedirs(file_dir)
+        self._write_handler(file_id, filename, serial, filebody)
 
-        sliced_filename = "{0}:{1}".format(file_id, serial)
-
-        save_file = os.path.join(file_dir, sliced_filename)
-
-        # TODO 1.write in chuncks:DONE
-        #      2.async
-        # in fact, when `redis_conn.sismember("{0}:child".format(file_id), serial)` is True
-        # we do not need to write file
-        with open(save_file, "wb") as file_write:
-            file_write.write(filebody)
         self.write({'success': True})
 
 class DownloadHandler(tornado.web.RequestHandler):
