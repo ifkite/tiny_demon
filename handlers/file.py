@@ -5,7 +5,6 @@ import tornado.web
 from tornado.options import options
 
 import utils
-from config import redis_conn
 
 reload(sys)
 sys.setdefaultencoding("utf-8")

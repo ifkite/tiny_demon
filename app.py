@@ -30,7 +30,7 @@ class Application(tornado.web.Application):
 def main():
     tornado.options.parse_command_line()
     sockets = tornado.netutil.bind_sockets(port=options.port, address=options.host)
-    # tornado.process.fork_processes(options.processes)
+    tornado.process.fork_processes(options.processes)
     http_server = tornado.httpserver.HTTPServer(Application())
     http_server.add_sockets(sockets)
     tornado.ioloop.IOLoop.instance().start()
