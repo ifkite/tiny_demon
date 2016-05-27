@@ -9,6 +9,7 @@ import utils
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
+
 class UploadHandler(tornado.web.RequestHandler):
 
     def _write_handler(self, file_id, filename, serial, filebody):
@@ -63,7 +64,9 @@ class UploadHandler(tornado.web.RequestHandler):
 
         self.write({'success': True})
 
+
 class DownloadHandler(tornado.web.RequestHandler):
+
     def get(self, fileid=None):
         fileids = utils.get_fileids()
         files = {fileid: utils.get_filename_by_id(fileid) for fileid in fileids}
