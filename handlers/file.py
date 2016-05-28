@@ -10,14 +10,26 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 
 
+def get_file_dir(file_id):
+    return os.path.join(options.basedir, file_id)
+
+
+def get_file_path(file_dir, filename):
+    return os.path.join(file_dir, filename)
+
+
+def set_sliced_filename(file_id, serial):
+    return "{0}:{1}".format(file_id, serial)
+
+
 class UploadHandler(tornado.web.RequestHandler):
 
     def _write_handler(self, file_id, filename, serial, filebody):
-        file_dir = os.path.join(options.basedir, file_id)
+        file_dir = get_file_dir(file_id)
         if not os.path.isdir(file_dir):
             os.makedirs(file_dir)
-        sliced_filename = "{0}:{1}".format(file_id, serial)
-        save_file = os.path.join(file_dir, sliced_filename)
+        sliced_filename = set_sliced_filename(file_id, serial)
+        save_file = get_file_path(file_dir, sliced_filename)
         # TODO 1.write in chuncks:DONE
         #      2.async
         # in fact, when `redis_conn.sismember("{0}:child".format(file_id), serial)` is True
@@ -84,12 +96,12 @@ class DownloadHandler(tornado.web.RequestHandler):
                 # even more, we can avoid sort operation if we known the chunk length
                 # who are us? we are the servers ;)
                 sliced_files_serial = utils.sort_children_by_id(fileid)
-                sliced_files_name = ["{0}:{1}".format(fileid, serial) for serial in sliced_files_serial]
-                file_dir = os.path.join(options.basedir, fileid)
+                sliced_files_name = [set_sliced_filename(fileid, serial) for serial in sliced_files_serial]
+                file_dir = get_file_dir(fileid)
 
                 # merge files
                 for sliced_file_child in sliced_files_name:
-                    sliced_child_path = os.path.join(file_dir, sliced_file_child)
+                    sliced_child_path = get_file_path(file_dir, sliced_file_child)
                     with open(sliced_child_path, "rb") as file_read:
                         while True:
                             buffer = file_read.read(options.buf_size)
