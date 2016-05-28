@@ -13,7 +13,7 @@ sys.setdefaultencoding("utf-8")
 class UploadHandler(tornado.web.RequestHandler):
 
     def _write_handler(self, file_id, filename, serial, filebody):
-        file_dir = os.path.join(options.basedir, filename)
+        file_dir = os.path.join(options.basedir, file_id)
         if not os.path.isdir(file_dir):
             os.makedirs(file_dir)
         sliced_filename = "{0}:{1}".format(file_id, serial)
@@ -85,7 +85,7 @@ class DownloadHandler(tornado.web.RequestHandler):
                 # who are us? we are the servers ;)
                 sliced_files_serial = utils.sort_children_by_id(fileid)
                 sliced_files_name = ["{0}:{1}".format(fileid, serial) for serial in sliced_files_serial]
-                file_dir = os.path.join(options.basedir, filename)
+                file_dir = os.path.join(options.basedir, fileid)
 
                 # merge files
                 for sliced_file_child in sliced_files_name:
