@@ -12,7 +12,16 @@
       <output id="list"></output>
   </body>
   <footer>
-  <script data-main="{{static_url('js/upload')}}" src="{{static_url('js/lib/require.js')}}">
+  <script data-main="{{static_url('js/common')}}" src="{{static_url('js/lib/require.js')}}">
+
   </script>
+  <script>
+    requirejs(['lib/jquery', 'lib/md5'],function(common, jquery, md5){
+        requirejs(['app/upload_app'], function(upload_app){
+            upload_app.upload_wrap("{{reverse_url('upload')}}", "{{options.fname}}", "{{options.fileid}}", "{{options.serial}}", "{{options.chunk_size}}");
+    });
+});
+  </script>
+
   </footer>
 </html>

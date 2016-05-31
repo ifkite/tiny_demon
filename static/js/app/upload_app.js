@@ -1,4 +1,5 @@
 define(function(){
+    var upload_wrap =  function(post_url, fname_opt, fileid_opt, serial_opt, chunk_size_opt){
     $( function(){
       function handleFileSelect(evt) {
         var files = evt.target.files; // FileList object
@@ -13,7 +14,8 @@ define(function(){
             function setupSender(blob, file_id, serial){
                 var xhr = new XMLHttpRequest();
                 this.xhr = xhr;
-                xhr.open("POST",'/upload/');
+                console.log(post_url);
+                xhr.open("POST", post_url);
                 //xhr.open("POST", {{reverse_url('upload')}});
                 xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
                 xhr.responseType = 'json'
@@ -29,11 +31,11 @@ define(function(){
                 }
                 formdata = new FormData();
                 sliced_file = new File([blob], escape(file.name), {type: file.type, lastModified: new Date()})
-                formdata.append("fileslice", sliced_file);
+                formdata.append(fname_opt, sliced_file);
                 //formdata.append("{{options.fname}}", sliced_file);
-                formdata.append("Fileid", file_id);
+                formdata.append(fileid_opt, file_id);
                 //formdata.append("{{options.fileid}}", file_id);
-                formdata.append("Serial", serial);
+                formdata.append(serial_opt, serial);
                 //formdata.append("{{options.serial}}", serial);
                 xhr.send(formdata);
             }
@@ -51,7 +53,7 @@ define(function(){
             }
 
             // read all content into memory at one time
-            var chunk_size = 4096*1024;
+            var chunk_size = chunk_size_opt;
             //var chunk_size = {{options.chunk_size}};
             var full_chunk_loop_time = parseInt(file.size / chunk_size);
             var left_chunk_size = file.size % chunk_size;
@@ -91,4 +93,8 @@ define(function(){
 
       $('#files')[0].addEventListener('change', handleFileSelect, false);
     });
+    };
+    return{
+        upload_wrap:upload_wrap
+    }
 });
