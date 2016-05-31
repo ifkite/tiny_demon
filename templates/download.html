@@ -9,12 +9,5 @@
         {%end%}
         </ul>
     </body>
-    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
-    <script>
-        $(document).ready(function(){
-        {% for fileid, _ in files.iteritems() %}
-            $('#{{fileid}}').text(unescape($('#{{fileid}}').text()));
-        {% end %}
-        });
-    </script>
+    <script data-main="{{static_url('js/download')}}" src="{{static_url('js/lib/require.js')}}"></script>
 </html>
