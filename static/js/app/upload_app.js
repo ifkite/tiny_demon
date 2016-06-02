@@ -1,8 +1,17 @@
 define(function(){
     var upload_wrap =  function(post_url, fname_opt, fileid_opt, serial_opt, chunk_size_opt){
     $( function(){
+      function handleDragOver(evt){
+          evt.stopPropagation();
+          evt.preventDefault();
+          evt.dataTransfer.dropEffect = 'copy';
+      };
+
       function handleFileSelect(evt) {
-        var files = evt.target.files; // FileList object
+        evt.stopPropagation();
+        evt.preventDefault();
+
+        var files = evt.dataTransfer.files; // FileList object
 
         // files is a FileList of File objects. List some properties.
         var output = [];
@@ -91,7 +100,10 @@ define(function(){
         uploadFile(file);
       };
 
-      $('#files')[0].addEventListener('change', handleFileSelect, false);
+      var drop_zone= document.getElementById('drop_zone');
+      drop_zone.addEventListener('dragover', handleDragOver, false);
+      drop_zone.addEventListener('drop', handleFileSelect, false);
+
     });
     };
     return{

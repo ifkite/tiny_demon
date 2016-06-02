@@ -3,13 +3,16 @@
 <!DOCTYPE html>
 <html>
   <head>
+  <link rel="stylesheet" type="text/css" href="{{static_url('css/upload.css')}}">
   </head>
 
   <body>
-      <div id="upload">
-          <input type="file" id="files" name="files[]" multiple />
+    <section id="container">
+      <div id="drop_zone_wrap">
+        <div id="drop_zone"> drop one file here</div>
+        <output id="list"></output>
       </div>
-      <output id="list"></output>
+    </section>
   </body>
   <footer>
   <script data-main="{{static_url('js/common')}}" src="{{static_url('js/lib/require.js')}}">
@@ -22,6 +25,6 @@
     });
 });
   </script>
-
+  
   </footer>
 </html>
