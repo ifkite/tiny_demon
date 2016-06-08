@@ -12,9 +12,21 @@ define(function(){
         evt.preventDefault();
 
         var files = evt.dataTransfer.files; // FileList object
-
+        var progress = $('.percent');
+        var loaded_total = 0;
         // files is a FileList of File objects. List some properties.
         var output = [];
+
+        function updateProgress(e){
+            if(e.lengthComputable){
+                loaded_total = loaded_total + e.loaded;
+                var percentLoaded = Math.round((loaded_total / file.size) * 100);
+                if(percentLoaded < 100){
+                    progress.css('width', percentLoaded + '%');
+                    progress.text(percentLoaded + '%');
+                }
+            }
+        }
 
         function uploadFile(file){
             // TODO: when file is tiny or even emply
@@ -23,21 +35,22 @@ define(function(){
             function setupSender(blob, file_id, serial){
                 var xhr = new XMLHttpRequest();
                 this.xhr = xhr;
-                console.log(post_url);
                 xhr.open("POST", post_url);
                 //xhr.open("POST", {{reverse_url('upload')}});
                 xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
                 xhr.responseType = 'json'
                 // call when server return data
-                xhr.onload = function() {
-                    if (xhr.response.success){
-                        $('.filename').css('color','green');
+                xhr.upload.onprogress = updateProgress;
+                xhr.onload = function(evt){
+                    if(evt.lengthComputable){
+                        var percentOnload = Math.round((loaded_total / file.size) * 100);
+                        // magic number 97
+                        if(percentOnload > 97){
+                            progress.css('width', '100%');
+                            progress.text('100%');
+                        }
                     }
-                    else{
-                        var filename = $('.filename').html();
-                        $('.filename').html(filename + ' upload failed.');
-                    }
-                }
+                };
                 formdata = new FormData();
                 sliced_file = new File([blob], escape(file.name), {type: file.type, lastModified: new Date()})
                 formdata.append(fname_opt, sliced_file);
