@@ -2,19 +2,14 @@
 ## tiny_demon: upload/download large files  
 
 1. ###使用  
-<code>git clone https://github.com/   ifkite/tiny_demon.git  
-cd tiny_demon  
-virtualenv venv  
-. venv/bin/activate  
-</code>  
-安装 redis
-<code>
-pip install -r requirements.txt
-</code>  
-启动 redis-server
-<code>
-python app.py （占用8080端口）
-</code>  
+`git clone https://github.com/ifkite/tiny_demon.git`  
+`cd tiny_demon`  
+`virtualenv venv`  
+`. venv/bin/activate`  
+安装 redis  
+`pip install -r requirements.txt`  
+启动 redis-server  
+`python app.py` （占用8080端口）  
 上传：[torandohost]:8080/upload/  
 下载：[torandohost]:8080/download/  
 tornadohost: 跑tornado的host ip.  
